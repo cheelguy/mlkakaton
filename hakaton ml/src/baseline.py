@@ -1,6 +1,3 @@
-"""
-Baseline модель: логистическая регрессия
-"""
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -14,18 +11,6 @@ from src.utils import log_info, load_dataframe, MODELS_DIR
 from src.validation import evaluate_model, train_test_split_stratified
 
 def prepare_features(features_df, target_dict=None):
-    """
-    Подготовка признаков для модели
-    
-    Args:
-        features_df: DataFrame с признаками
-        target_dict: словарь {student_id: target} для train
-    
-    Returns:
-        X: признаки
-        y: целевая переменная (если target_dict передан)
-        feature_names: названия признаков
-    """
     # Исключаем не-признаки
     exclude_cols = ['student_id', 'Факультет', 'Направление', 'год поступления']
     feature_cols = [col for col in features_df.columns if col not in exclude_cols]
@@ -39,19 +24,6 @@ def prepare_features(features_df, target_dict=None):
         return X, None, feature_cols
 
 def train_baseline(X_train, y_train, X_val=None, y_val=None):
-    """
-    Обучение baseline модели (логистическая регрессия)
-    
-    Args:
-        X_train: признаки для обучения
-        y_train: целевая переменная для обучения
-        X_val: признаки для валидации (опционально)
-        y_val: целевая переменная для валидации (опционально)
-    
-    Returns:
-        model: обученная модель
-        metrics: метрики модели
-    """
     log_info("\n" + "=" * 60)
     log_info("ОБУЧЕНИЕ BASELINE МОДЕЛИ")
     log_info("=" * 60)
@@ -119,7 +91,7 @@ if __name__ == "__main__":
     # Сохранение модели
     model_path = MODELS_DIR / "baseline.pkl"
     joblib.dump(model, model_path)
-    log_info(f"\n✅ Модель сохранена: {model_path}")
+    log_info(f"\n Модель сохранена: {model_path}")
     
     # Сохранение названий признаков
     import json
@@ -130,5 +102,5 @@ if __name__ == "__main__":
     with open(Path(__file__).parent.parent / "output" / "baseline_info.json", 'w') as f:
         json.dump(features_info, f, indent=2, default=str)
     
-    log_info("\n✅ Baseline обучение завершено!")
+    log_info("\n Baseline обучение завершено!")
 
