@@ -242,14 +242,14 @@ def step8_prepare_final_dataset(train_features, test_features, train_target, fea
     
     log_info("\n" + "=" * 60)
     log_info("ПОДГОТОВКА ДАННЫХ ЗАВЕРШЕНА!")
-    log_info("   Данные готовы для передачи Диме (Models + Validation)")
+    log_info("   Данные готовы (Models + Validation)")
     log_info("=" * 60)
     
     return train_final, test_final
 
 def run_full_data_preparation():
     log_info("\n" + "=" * 80)
-    log_info("ПОЛНАЯ ПОДГОТОВКА ДАННЫХ (ЗАДАЧИ НИКИТЫ)")
+    log_info("ПОЛНАЯ ПОДГОТОВКА ДАННЫХ")
     log_info("=" * 80)
     
     # Загрузка данных

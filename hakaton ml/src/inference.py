@@ -1,6 +1,3 @@
-"""
-Inference: предсказания на тестовой выборке и создание submission файла
-"""
 import pandas as pd
 import numpy as np
 import joblib
@@ -13,15 +10,6 @@ from src.utils import log_info, load_dataframe, MODELS_DIR, OUTPUT_DIR, setup_li
 setup_lightgbm_environment()
 
 def load_model(model_name='catboost'):
-    """
-    Загрузка обученной модели
-    
-    Args:
-        model_name: название модели ('baseline', 'catboost', 'lightgbm')
-    
-    Returns:
-        model: загруженная модель
-    """
     model_path = MODELS_DIR / f"{model_name}_model.pkl"
     if model_name == 'baseline':
         model_path = MODELS_DIR / "baseline.pkl"
@@ -34,23 +22,12 @@ def load_model(model_name='catboost'):
     return model
 
 def prepare_test_features(features_df, test_student_ids):
-    """
-    Подготовка признаков для тестовой выборки
-    
-    Args:
-        features_df: DataFrame с признаками всех студентов
-        test_student_ids: список ID студентов для теста
-    
-    Returns:
-        X_test: признаки для теста
-        test_ids: ID студентов в том же порядке
-    """
     test_features = features_df[features_df['student_id'].isin(test_student_ids)].copy()
     
     # Проверяем, что все студенты из теста есть в features
     missing_students = set(test_student_ids) - set(test_features['student_id'].unique())
     if missing_students:
-        log_info(f"⚠️  ВНИМАНИЕ: {len(missing_students)} студентов из теста отсутствуют в features")
+        log_info(f" ВНИМАНИЕ: {len(missing_students)} студентов из теста отсутствуют в features")
         log_info(f"  Это может означать, что у них нет данных за первые 2 курса")
     
     # Исключаем не-признаки
@@ -66,17 +43,6 @@ def prepare_test_features(features_df, test_student_ids):
     return X_test, test_ids, feature_cols
 
 def predict(model, X_test, model_name='catboost'):
-    """
-    Предсказания модели
-    
-    Args:
-        model: обученная модель
-        X_test: признаки для теста
-        model_name: название модели (для специальной обработки)
-    
-    Returns:
-        predictions: вероятности класса 1 (выпустился)
-    """
     log_info(f"\nПредсказания моделью {model_name}...")
     
     if model_name == 'lightgbm':
@@ -93,17 +59,6 @@ def predict(model, X_test, model_name='catboost'):
     return predictions
 
 def create_submission(test_ids, predictions, output_path=None):
-    """
-    Создание submission файла
-    
-    Args:
-        test_ids: ID студентов
-        predictions: предсказания (вероятности или классы)
-        output_path: путь для сохранения (по умолчанию output/submission.csv)
-    
-    Returns:
-        submission_df: DataFrame с submission
-    """
     if output_path is None:
         output_path = OUTPUT_DIR / "submission.csv"
     
@@ -121,7 +76,7 @@ def create_submission(test_ids, predictions, output_path=None):
     
     # Сохранение
     submission_df.to_csv(output_path, index=False)
-    log_info(f"\n✅ Submission сохранен: {output_path}")
+    log_info(f"\n Submission сохранен: {output_path}")
     log_info(f"  Размер: {len(submission_df):,} строк")
     log_info(f"  Распределение предсказаний:")
     log_info(f"    Выпустился (1): {(classes == 1).sum():,} ({(classes == 1).mean()*100:.1f}%)")
@@ -130,16 +85,7 @@ def create_submission(test_ids, predictions, output_path=None):
     return submission_df
 
 def ensemble_predictions(models_dict, X_test):
-    """
-    Ансамбль предсказаний нескольких моделей
     
-    Args:
-        models_dict: словарь {model_name: model}
-        X_test: признаки для теста
-    
-    Returns:
-        ensemble_predictions: усредненные предсказания
-    """
     log_info("\n" + "=" * 60)
     log_info("АНСАМБЛЬ ПРЕДСКАЗАНИЙ")
     log_info("=" * 60)
@@ -157,7 +103,7 @@ def ensemble_predictions(models_dict, X_test):
     
     # Усреднение
     ensemble_pred = np.mean(all_predictions, axis=0)
-    log_info(f"\n✅ Ансамбль: средняя вероятность {ensemble_pred.mean():.4f}")
+    log_info(f"\n Ансамбль: средняя вероятность {ensemble_pred.mean():.4f}")
     
     return ensemble_pred
 
@@ -167,10 +113,10 @@ if __name__ == "__main__":
     log_info("INFERENCE НА ТЕСТОВОЙ ВЫБОРКЕ")
     log_info("=" * 60)
     
-    # Пробуем загрузить финальный test датасет (если подготовлен Никитой)
+    # Пробуем загрузить финальный test датасет 
     try:
         test_final = load_dataframe("test_final.parquet")
-        log_info("  Загружен финальный test датасет (подготовлен Никитой)")
+        log_info("  Загружен финальный test датасет ")
         
         X_test = test_final.drop(['student_id'], axis=1)
         test_ids = test_final['student_id'].values
@@ -202,6 +148,6 @@ if __name__ == "__main__":
     # Создание submission
     submission_df = create_submission(test_ids, predictions)
     
-    log_info("\n✅ Inference завершен!")
+    log_info("\n Inference завершен!")
     log_info(f"  Файл submission: {OUTPUT_DIR / 'submission.csv'}")
 
