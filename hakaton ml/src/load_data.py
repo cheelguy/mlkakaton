@@ -1,6 +1,3 @@
-"""
-Загрузка и первичный анализ данных
-"""
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -9,14 +6,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.utils import DATA_RAW, log_info, save_dataframe
 
 def load_raw_data():
-    """
-    Загрузка сырых данных из CSV файлов
-    
-    Returns:
-        data_df: DataFrame с данными об оценках
-        marking_df: DataFrame с информацией о студентах
-        sample_submission_df: DataFrame с форматом сабмита
-    """
     log_info("=" * 60)
     log_info("ЗАГРУЗКА ДАННЫХ")
     log_info("=" * 60)
@@ -65,13 +54,6 @@ def load_raw_data():
     return data_df, marking_df, sample_submission_df
 
 def analyze_data(data_df, marking_df):
-    """
-    Первичный анализ данных
-    
-    Args:
-        data_df: DataFrame с данными об оценках
-        marking_df: DataFrame с информацией о студентах
-    """
     log_info("\n" + "=" * 60)
     log_info("АНАЛИЗ ДАННЫХ")
     log_info("=" * 60)
@@ -92,7 +74,7 @@ def analyze_data(data_df, marking_df):
         log_info(f"    {col}: {count:,} ({pct:.1f}%)")
     
     # Анализ marking.csv
-    log_info("\n📊 Анализ marking.csv (студенты):")
+    log_info("\n Анализ marking.csv (студенты):")
     log_info(f"  Уникальных студентов: {marking_df['ИД'].nunique():,}")
     
     # Целевая переменная
@@ -120,13 +102,13 @@ def analyze_data(data_df, marking_df):
     log_info(f"  Общих студентов: {len(common_students):,}")
     
     # Анализ по семестрам
-    log_info("\n📊 Распределение данных по семестрам:")
+    log_info("\n Распределение данных по семестрам:")
     semester_counts = data_df['SEMESTER'].value_counts().sort_index()
     for sem, count in semester_counts.items():
         log_info(f"  Семестр {sem}: {count:,} записей")
     
     # Определение границы 2 курса (семестры 1-4 = первые 2 курса)
-    log_info("\n📌 ЛОГИКА РАЗДЕЛЕНИЯ:")
+    log_info("\n ЛОГИКА РАЗДЕЛЕНИЯ:")
     log_info("  Train: данные за семестры 1-4 (первые 2 курса)")
     log_info("  Test: студенты из sample_submission.csv")
     
@@ -150,5 +132,5 @@ if __name__ == "__main__":
     save_dataframe(marking_df, "marking_raw.parquet")
     save_dataframe(sample_submission_df, "sample_submission.parquet")
     
-    log_info("\n✅ Загрузка данных завершена!")
+    log_info("\n Загрузка данных завершена!")
 
