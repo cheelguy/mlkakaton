@@ -1,12 +1,3 @@
-"""
-Feature Engineering: создание признаков для модели
-
-Создаем агрегированные признаки по студентам:
-- Статистики по оценкам (среднее, медиана, мин, макс, std)
-- Динамика оценок по семестрам
-- Статистики по типам оценок
-- Статистики по дисциплинам
-"""
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -15,16 +6,6 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.utils import log_info, save_dataframe, load_dataframe
 
 def create_student_features(data_df, student_ids=None):
-    """
-    Создание признаков на уровне студента
-    
-    Args:
-        data_df: DataFrame с обработанными данными об оценках
-        student_ids: список ID студентов (если None, то для всех)
-    
-    Returns:
-        features_df: DataFrame с признаками для каждого студента
-    """
     log_info("\n" + "=" * 60)
     log_info("СОЗДАНИЕ ПРИЗНАКОВ")
     log_info("=" * 60)
@@ -41,7 +22,7 @@ def create_student_features(data_df, student_ids=None):
     for student_id, student_data in grouped:
         features = {'student_id': student_id}
         
-        # ========== БАЗОВЫЕ СТАТИСТИКИ ПО ОЦЕНКАМ ==========
+        # Базовые статистики по оценкам
         if 'final_score' in student_data.columns:
             scores = student_data['final_score'].dropna()
             if len(scores) > 0:
@@ -58,7 +39,7 @@ def create_student_features(data_df, student_ids=None):
                     'score_max': 0, 'score_std': 0, 'score_count': 0, 'score_sum': 0
                 })
         
-        # ========== СТАТИСТИКИ ПО СЕМЕСТРАМ ==========
+        # Статистики по семестрам
         if 'semester' in student_data.columns:
             semesters = sorted(student_data['semester'].unique())
             features['semester_count'] = len(semesters)
@@ -88,7 +69,7 @@ def create_student_features(data_df, student_ids=None):
                 features['score_trend'] = 0
                 features['score_improvement'] = 0
         
-        # ========== СТАТИСТИКИ ПО ТИПАМ ОЦЕНОК ==========
+        # Статистики по типам оценок
         if 'is_exam' in student_data.columns:
             features['exams_count'] = student_data['is_exam'].sum()
             features['credits_count'] = student_data['is_credit'].sum()
@@ -108,12 +89,12 @@ def create_student_features(data_df, student_ids=None):
             else:
                 features['credit_score_mean'] = 0
         
-        # ========== СТАТИСТИКИ ПО ДИСЦИПЛИНАМ ==========
+        # Статистики по дисциплинам
         if 'discipline_name' in student_data.columns:
             features['disciplines_count'] = student_data['discipline_name'].nunique()
             features['records_count'] = len(student_data)
         
-        # ========== СТАТИСТИКИ ПО ДАТАМ ==========
+        # Статистики по датам
         if 'year' in student_data.columns:
             years = student_data['year'].dropna()
             if len(years) > 0:
@@ -125,7 +106,7 @@ def create_student_features(data_df, student_ids=None):
                 features['year_max'] = 0
                 features['year_span'] = 0
         
-        # ========== ПРОЦЕНТ УСПЕШНЫХ ОЦЕНОК ==========
+        # % по успешным оценкам
         if 'final_score' in student_data.columns:
             scores = student_data['final_score'].dropna()
             if len(scores) > 0:
@@ -138,7 +119,7 @@ def create_student_features(data_df, student_ids=None):
                 features['excellent_rate'] = 0
                 features['fail_rate'] = 0
         
-        # ========== ДИНАМИКА ПО СЕМЕСТРАМ ==========
+        # Динамики по семестрам
         if 'semester' in student_data.columns and 'final_score' in student_data.columns:
             # Средние оценки по каждому семестру
             for sem in [1, 2, 3, 4]:
@@ -158,22 +139,12 @@ def create_student_features(data_df, student_ids=None):
     # Заполняем пропуски нулями
     features_df = features_df.fillna(0)
     
-    log_info(f"✅ Создано признаков: {len(features_df.columns) - 1}")  # -1 для student_id
-    log_info(f"✅ Создано записей: {len(features_df):,}")
+    log_info(f"Создано признаков: {len(features_df.columns) - 1}")  # -1 для student_id
+    log_info(f"Создано записей: {len(features_df):,}")
     
     return features_df
 
 def merge_with_marking(features_df, marking_df):
-    """
-    Объединение признаков с информацией из marking.csv
-    
-    Args:
-        features_df: DataFrame с признаками студентов
-        marking_df: DataFrame с информацией о студентах
-    
-    Returns:
-        merged_df: объединенный DataFrame
-    """
     log_info("\nОбъединение с marking.csv...")
     
     # Определяем какая колонка используется для ID студента
@@ -186,7 +157,7 @@ def merge_with_marking(features_df, marking_df):
     else:
         raise ValueError("Не найдена колонка с ID студента (ожидается 'PK' или 'ИД')")
     
-    # Берем последнюю запись для каждого студента (самую актуальную)
+    # Самая актуальная версия для каждого студента 
     if 'дата изменения' in marking_df.columns:
         marking_latest = marking_df.sort_values('дата изменения', ascending=False).drop_duplicates(subset=[id_col], keep='first')
     else:
@@ -215,7 +186,7 @@ def merge_with_marking(features_df, marking_df):
         merged_df['admission_year'] = pd.to_numeric(merged_df['год поступления'], errors='coerce')
         merged_df['admission_year'] = merged_df['admission_year'].fillna(merged_df['admission_year'].median())
     
-    log_info(f"✅ Объединено записей: {len(merged_df):,}")
+    log_info(f" Объединено записей: {len(merged_df):,}")
     
     return merged_df
 
@@ -233,5 +204,5 @@ if __name__ == "__main__":
     # Сохранение
     save_dataframe(features_df, "features.parquet")
     
-    log_info("\n✅ Feature engineering завершен!")
+    log_info("\n Feature engineering завершен!")
 
