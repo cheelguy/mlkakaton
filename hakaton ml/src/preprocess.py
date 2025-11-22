@@ -9,15 +9,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.utils import log_info, save_dataframe, load_dataframe
 
 def preprocess_data(data_df):
-    """
-    Предобработка данных об оценках
-    
-    Args:
-        data_df: DataFrame с сырыми данными об оценках
-    
-    Returns:
-        processed_df: обработанный DataFrame
-    """
+
     log_info("\n" + "=" * 60)
     log_info("ПРЕДОБРАБОТКА ДАННЫХ")
     log_info("=" * 60)
@@ -33,10 +25,10 @@ def preprocess_data(data_df):
         df['day_of_week'] = df['EXAM_DATE'].dt.dayofweek
     
     # Обработка оценок
-    log_info("Обработка оценок...")
+    log_info("Обработка оценок")
     
-    # MARK: числовые оценки (5, 4, 3) и текстовые (з, ня)
-    # Создаем числовую версию оценки
+    
+    # приводим все оценки к одному числовому виду
     def parse_mark(mark):
         if pd.isna(mark):
             return np.nan
@@ -52,11 +44,10 @@ def preprocess_data(data_df):
     
     df['mark_numeric'] = df['MARK'].apply(parse_mark)
     
-    # BALLS: числовые баллы
+    # числовые баллы
     df['balls'] = pd.to_numeric(df['BALLS'], errors='coerce')
     
-    # GRADE: буквенные оценки (A, B, C, etc.)
-    # Преобразуем в числовую шкалу
+    # преобразуем буквенные оценки в числовые
     grade_mapping = {
         'A': 5, 'A-': 4.7, 'A+': 5,
         'B': 4, 'B-': 3.7, 'B+': 4.3,
@@ -66,20 +57,19 @@ def preprocess_data(data_df):
     }
     df['grade_numeric'] = df['GRADE'].map(grade_mapping)
     
-    # Используем лучшую доступную оценку
+    # используем лучшую доступную оценку
     df['final_score'] = df['balls'].fillna(df['grade_numeric']).fillna(df['mark_numeric'])
     
-    # Обработка типа оценки
-    log_info("Обработка типов оценок...")
+    # обработка типа оценки
+    log_info("Обработка типов оценок")
     
-    # Определяем название колонки с типом (может быть 'TYPE' или уже переименована)
-    type_col = None
+    # определяем название колонки с типом (
     if 'TYPE' in df.columns:
         type_col = 'TYPE'
     elif 'exam_type' in df.columns:
         type_col = 'exam_type'
     else:
-        log_info("  ⚠️  Колонка с типом оценки не найдена, пропускаем обработку типов")
+        log_info("    Колонка с типом оценки не найдена, пропускаем обработку типов")
         type_col = None
     
     if type_col:
@@ -98,7 +88,7 @@ def preprocess_data(data_df):
         df['is_coursework'] = 0
     
     # Обработка пропусков
-    log_info("Обработка пропусков...")
+    log_info("Обработка пропусков")
     missing_before = df.isnull().sum().sum()
     
     # Для числовых признаков заполняем медианой
@@ -126,7 +116,7 @@ def preprocess_data(data_df):
     if rename_dict:
         df.rename(columns=rename_dict, inplace=True)
     
-    log_info("\n✅ Предобработка завершена!")
+    log_info("\n Предобработка завершена")
     log_info(f"  Итоговых колонок: {len(df.columns)}")
     log_info(f"  Итоговых записей: {len(df):,}")
     
@@ -142,5 +132,5 @@ if __name__ == "__main__":
     # Сохранение
     save_dataframe(processed_df, "data_processed.parquet")
     
-    log_info("\n✅ Предобработка данных завершена!")
+    log_info("\n Предобработка данных завершена, файл сохранен: data_processed.parquet")
 

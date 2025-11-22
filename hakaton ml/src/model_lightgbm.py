@@ -8,59 +8,48 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
-# Настройка окружения для LightGBM перед импортом
+
 from src.utils import log_info, load_dataframe, MODELS_DIR, setup_lightgbm_environment
 setup_lightgbm_environment()
 
-# Теперь импортируем LightGBM
+# импортируем LightGBM
+
 try:
     import lightgbm as lgb
     LIGHTGBM_AVAILABLE = True
 except ImportError as e:
-    log_info(f"⚠️  LightGBM не установлен: {e}")
+    log_info(f"LightGBM не установлен: {e}")
     LIGHTGBM_AVAILABLE = False
 except OSError as e:
-    log_info(f"⚠️  LightGBM не может загрузиться (требуется libomp): {e}")
-    log_info("   Установите libomp: brew install libomp")
+    log_info(f"LightGBM не может загрузиться (требуется libomp): {e}")
+    log_info("Установить libomp: brew install libomp")
     LIGHTGBM_AVAILABLE = False
+
 
 import joblib
 from src.validation import evaluate_model, train_test_split_stratified
 
 # Класс-обертка для LightGBM (должен быть на уровне модуля для pickle)
 class LightGBMWrapper:
-    """Обертка для LightGBM модели для совместимости с sklearn API"""
+    #Обертка для LightGBM модели для совместимости с sklearn API
     def __init__(self, model):
         self.model = model
         self.feature_importances_ = model.feature_importance(importance_type='gain')
     
     def fit(self, X, y):
-        """Для совместимости с sklearn (не используется, модель уже обучена)"""
+        #Для совместимости с sklearn (не используется, модель уже обучена)
         return self
     
     def predict_proba(self, X):
-        """Предсказание вероятностей"""
+        #Предсказание вероятностей
         pred = self.model.predict(X)
         return np.column_stack([1 - pred, pred])
     
     def predict(self, X):
-        """Предсказание классов"""
+        #Предсказание классов
         return (self.model.predict(X) > 0.5).astype(int)
 
 def prepare_features_lightgbm(features_df, target_dict=None):
-    """
-    Подготовка признаков для LightGBM
-    
-    Args:
-        features_df: DataFrame с признаками
-        target_dict: словарь {student_id: target} для train
-    
-    Returns:
-        X: признаки
-        y: целевая переменная (если target_dict передан)
-        feature_names: названия признаков
-        cat_features: названия категориальных признаков
-    """
     # Исключаем не-признаки
     exclude_cols = ['student_id', 'Факультет', 'Направление', 'год поступления']
     feature_cols = [col for col in features_df.columns if col not in exclude_cols]
@@ -80,22 +69,8 @@ def prepare_features_lightgbm(features_df, target_dict=None):
         return X, None, feature_cols, cat_features
 
 def train_lightgbm(X_train, y_train, X_val=None, y_val=None, cat_features=None):
-    """
-    Обучение LightGBM модели
-    
-    Args:
-        X_train: признаки для обучения
-        y_train: целевая переменная для обучения
-        X_val: признаки для валидации (опционально)
-        y_val: целевая переменная для валидации (опционально)
-        cat_features: названия категориальных признаков
-    
-    Returns:
-        model: обученная модель
-        metrics: метрики модели
-    """
     if not LIGHTGBM_AVAILABLE:
-        raise ImportError("LightGBM недоступен. Установите libomp: brew install libomp")
+        raise ImportError("LightGBM недоступен. Установить libomp: brew install libomp")
     
     log_info("\n" + "=" * 60)
     log_info("ОБУЧЕНИЕ LIGHTGBM МОДЕЛИ")
@@ -120,7 +95,7 @@ def train_lightgbm(X_train, y_train, X_val=None, y_val=None, cat_features=None):
     
     if X_val is not None and y_val is not None:
         val_data = lgb.Dataset(X_val, label=y_val, categorical_feature=cat_features if cat_features else None, reference=train_data)
-        log_info("Обучение модели с валидацией...")
+        log_info("Обучение модели с валидацией")
         model = lgb.train(
             params,
             train_data,
@@ -133,7 +108,7 @@ def train_lightgbm(X_train, y_train, X_val=None, y_val=None, cat_features=None):
             ]
         )
     else:
-        log_info("Обучение модели...")
+        log_info("Обучение модели")
         model = lgb.train(
             params,
             train_data,
@@ -148,7 +123,7 @@ def train_lightgbm(X_train, y_train, X_val=None, y_val=None, cat_features=None):
     metrics = evaluate_model(wrapped_model, X_train, y_train, X_val, y_val, cv=5)
     
     # Важность признаков
-    log_info("\n📊 Топ-10 важных признаков:")
+    log_info("\nтоп 10 важных признаков:")
     feature_importance = pd.DataFrame({
         'feature': X_train.columns,
         'importance': wrapped_model.feature_importances_
@@ -164,18 +139,18 @@ def train_lightgbm(X_train, y_train, X_val=None, y_val=None, cat_features=None):
 if __name__ == "__main__":
     # Проверка доступности LightGBM
     if not LIGHTGBM_AVAILABLE:
-        log_info("❌ LightGBM недоступен!")
+        log_info("      LightGBM недоступен")
         log_info("   Для установки libomp выполните: brew install libomp")
-        log_info("   Или используйте CatBoost как альтернативу: python src/model_catboost.py")
+        log_info("   Или используйте CatBoost как альтернативу: python3 src/model_catboost.py")
         sys.exit(1)
     
     # Загрузка данных
-    log_info("Загрузка данных...")
+    log_info("Загрузка данных")
     
-    # Пробуем загрузить финальный датасет (если подготовлен Никитой)
+    # Пробуем загрузить финальный датасет
     try:
         train_final = load_dataframe("train_final.parquet")
-        log_info("  Загружен финальный train датасет (подготовлен Никитой)")
+        log_info("  Загружен финальный train датасет")
         
         # Подготовка признаков из финального датасета
         X_train = train_final.drop(['student_id', 'target'], axis=1)
@@ -190,7 +165,7 @@ if __name__ == "__main__":
         
     except FileNotFoundError:
         # Fallback на старый способ
-        log_info("  Финальный датасет не найден, используем старый способ...")
+        log_info("  Финальный датасет не найден, используем старый способ.")
         features_df = load_dataframe("features.parquet")
         
         # Загрузка target для train
@@ -221,7 +196,7 @@ if __name__ == "__main__":
         # Сохранение модели
         model_path = MODELS_DIR / "lightgbm_model.pkl"
         joblib.dump(model, model_path)
-        log_info(f"\n✅ Модель сохранена: {model_path}")
+        log_info(f"\nМодель сохранена: {model_path}")
         
         # Сохранение информации
         import json
@@ -233,9 +208,9 @@ if __name__ == "__main__":
         with open(Path(__file__).parent.parent / "output" / "lightgbm_info.json", 'w') as f:
             json.dump(model_info, f, indent=2, default=str)
         
-        log_info("\n✅ LightGBM обучение завершено!")
+        log_info("\nLightGBM обучение завершено!")
     except Exception as e:
-        log_info(f"\n❌ Ошибка при обучении LightGBM: {e}")
-        log_info("   Убедитесь, что libomp установлен: brew install libomp")
+        log_info(f"\nОшибка при обучении LightGBM: {e}")
+        log_info("   Убедитесь, что libomp установлен")
         sys.exit(1)
 

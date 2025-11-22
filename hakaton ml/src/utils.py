@@ -1,6 +1,3 @@
-"""
-Утилиты для проекта хакатона
-"""
 import os
 import pandas as pd
 import numpy as np
@@ -41,7 +38,6 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Настройка логирования
 def setup_logging():
-    """Настройка логирования в файл и консоль"""
     log_file = OUTPUT_DIR / "logs.txt"
     logging.basicConfig(
         level=logging.INFO,
@@ -54,18 +50,18 @@ def setup_logging():
     return logging.getLogger(__name__)
 
 def log_info(message):
-    """Логирование информации"""
+    #Логирование информации
     logger = setup_logging()
     logger.info(message)
 
 def save_dataframe(df, filename, directory=DATA_PROCESSED):
-    """Сохранение DataFrame в parquet"""
+    #Сохранение DataFrame в parquet
     filepath = directory / filename
     df.to_parquet(filepath, index=False)
     log_info(f"Сохранено: {filepath}")
 
 def load_dataframe(filename, directory=DATA_PROCESSED):
-    """Загрузка DataFrame из parquet"""
+    #Загрузка DataFrame из parquet
     filepath = directory / filename
     if filepath.exists():
         return pd.read_parquet(filepath)
@@ -73,7 +69,7 @@ def load_dataframe(filename, directory=DATA_PROCESSED):
         raise FileNotFoundError(f"Файл не найден: {filepath}")
 
 def check_data_leakage(train_df, test_df, feature_cols):
-    """Проверка признаков на даталик"""
+    #Проверка признаков на даталик
     warnings = []
     for col in feature_cols:
         if col in train_df.columns and col in test_df.columns:
@@ -83,21 +79,21 @@ def check_data_leakage(train_df, test_df, feature_cols):
             # Проверка на уникальные значения в тесте, которых нет в трейне
             unique_in_test = set(test_vals) - set(train_vals)
             if len(unique_in_test) > 0 and len(unique_in_test) / len(test_vals) > 0.1:
-                warnings.append(f"⚠️  {col}: {len(unique_in_test)} уникальных значений в тесте отсутствуют в трейне")
+                warnings.append(f"  {col}: {len(unique_in_test)} уникальных значений в тесте отсутствуют в трейне")
             
             # Проверка на разные распределения
             if train_df[col].dtype in ['float64', 'int64']:
                 train_mean = train_df[col].mean()
                 test_mean = test_df[col].mean()
                 if abs(train_mean - test_mean) / (abs(train_mean) + 1e-6) > 0.5:
-                    warnings.append(f"⚠️  {col}: значительное различие средних (train: {train_mean:.2f}, test: {test_mean:.2f})")
+                    warnings.append(f"  {col}: значительное различие средних (train: {train_mean:.2f}, test: {test_mean:.2f})")
     
     if warnings:
-        log_info("ПРЕДУПРЕЖДЕНИЯ О ВОЗМОЖНЫХ ДАТАЛИКАХ:")
+        log_info("предупреждения о возможных даталиках:")
         for w in warnings:
             log_info(w)
     else:
-        log_info("✅ Проверка на даталики: подозрительных признаков не найдено")
+        log_info("  проверка на даталики: подозрительных признаков не найдено")
     
     return warnings
 

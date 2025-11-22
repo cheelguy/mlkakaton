@@ -1,6 +1,3 @@
-"""
-Валидация моделей: кросс-валидация, метрики, проверка на даталики
-"""
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold, cross_val_score
@@ -11,22 +8,9 @@ sys.path.append(str(Path(__file__).parent.parent))
 from src.utils import log_info, check_data_leakage
 
 def evaluate_model(model, X_train, y_train, X_val=None, y_val=None, cv=5):
-    """
-    Оценка модели с использованием кросс-валидации и валидационной выборки
-    
-    Args:
-        model: обученная модель
-        X_train: признаки для обучения
-        y_train: целевая переменная для обучения
-        X_val: признаки для валидации (опционально)
-        y_val: целевая переменная для валидации (опционально)
-        cv: количество фолдов для кросс-валидации
-    
-    Returns:
-        metrics: словарь с метриками
-    """
+
     log_info("\n" + "=" * 60)
-    log_info("ВАЛИДАЦИЯ МОДЕЛИ")
+    log_info("валидация модели")
     log_info("=" * 60)
     
     metrics = {}
@@ -41,17 +25,17 @@ def evaluate_model(model, X_train, y_train, X_val=None, y_val=None, cv=5):
             metrics['cv_std'] = cv_scores.std()
             log_info(f"  CV ROC-AUC: {metrics['cv_mean']:.4f} (+/- {metrics['cv_std']:.4f})")
         else:
-            log_info(f"  ⚠️  Кросс-валидация пропущена (модель не sklearn-совместима)")
+            log_info(f"    Кросс-валидация пропущена (модель не sklearn-совместима)")
             metrics['cv_mean'] = 0
             metrics['cv_std'] = 0
     except Exception as e:
-        log_info(f"  ⚠️  Ошибка кросс-валидации: {e}")
+        log_info(f"    Ошибка кросс-валидации: {e}")
         metrics['cv_mean'] = 0
         metrics['cv_std'] = 0
     
     # Валидация на отдельной выборке
     if X_val is not None and y_val is not None:
-        log_info("\nВалидация на отдельной выборке...")
+        log_info("\nвалидация на отдельной выборке")
         y_pred_proba = model.predict_proba(X_val)[:, 1]
         y_pred = model.predict(X_val)
         
@@ -75,32 +59,13 @@ def evaluate_model(model, X_train, y_train, X_val=None, y_val=None, cv=5):
     return metrics
 
 def train_test_split_stratified(X, y, test_size=0.2, random_state=42):
-    """
-    Стратифицированное разделение на train/val
-    
-    Args:
-        X: признаки
-        y: целевая переменная
-        test_size: доля тестовой выборки
-        random_state: random seed
-    
-    Returns:
-        X_train, X_val, y_train, y_val
-    """
     from sklearn.model_selection import train_test_split
     return train_test_split(X, y, test_size=test_size, random_state=random_state, stratify=y)
 
 def validate_features(train_df, test_df, feature_cols):
-    """
-    Проверка признаков на даталики
-    
-    Args:
-        train_df: DataFrame с train данными
-        test_df: DataFrame с test данными
-        feature_cols: список признаков для проверки
-    """
+
     log_info("\n" + "=" * 60)
-    log_info("ПРОВЕРКА ПРИЗНАКОВ НА ДАТАЛИКИ")
+    log_info("проверка признаков на даталики")
     log_info("=" * 60)
     
     warnings = check_data_leakage(train_df, test_df, feature_cols)
