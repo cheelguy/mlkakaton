@@ -28,7 +28,7 @@ def train_baseline(X_train, y_train, X_val=None, y_val=None):
     log_info("ОБУЧЕНИЕ BASELINE МОДЕЛИ")
     log_info("=" * 60)
     
-    # Создаем pipeline: стандартизация + логистическая регрессия
+    # Стандартизация + логистическая регрессия
     model = Pipeline([
         ('scaler', StandardScaler()),
         ('lr', LogisticRegression(
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     # Загрузка данных
     log_info("Загрузка данных...")
     
-    # Пробуем загрузить финальный датасет (если подготовлен Никитой)
+    # Пробуем загрузить финальный датасет 
     try:
         train_final = load_dataframe("train_final.parquet")
         log_info("  Загружен финальный train датасет (подготовлен Никитой)")
