@@ -1,0 +1,209 @@
+{
+  "feature_names": [
+    "score_mean",
+    "score_median",
+    "score_min",
+    "score_max",
+    "score_std",
+    "score_count",
+    "score_sum",
+    "semester_count",
+    "semester_min",
+    "semester_max",
+    "semester_score_mean",
+    "score_trend",
+    "score_improvement",
+    "exams_count",
+    "credits_count",
+    "practices_count",
+    "courseworks_count",
+    "exam_score_mean",
+    "credit_score_mean",
+    "disciplines_count",
+    "records_count",
+    "year_min",
+    "year_max",
+    "year_span",
+    "success_rate",
+    "excellent_rate",
+    "fail_rate",
+    "semester_1_score_mean",
+    "semester_1_count",
+    "semester_2_score_mean",
+    "semester_2_count",
+    "semester_3_score_mean",
+    "semester_3_count",
+    "semester_4_score_mean",
+    "semester_4_count",
+    "faculty_encoded",
+    "direction_encoded",
+    "admission_year"
+  ],
+  "cat_features": [
+    "faculty_encoded",
+    "direction_encoded"
+  ],
+  "metrics": {
+    "cv_mean": 0,
+    "cv_std": 0,
+    "val_roc_auc": 0.9437500000000001,
+    "val_accuracy": 0.8715083798882681,
+    "val_precision": 0.8360655737704918,
+    "val_recall": 0.796875,
+    "val_f1": 0.816,
+    "feature_importance": [
+      {
+        "feature": "success_rate",
+        "importance": 1262.708212700537
+      },
+      {
+        "feature": "semester_4_score_mean",
+        "importance": 1064.6575951881678
+      },
+      {
+        "feature": "fail_rate",
+        "importance": 531.6361555173785
+      },
+      {
+        "feature": "semester_1_count",
+        "importance": 497.19963940768946
+      },
+      {
+        "feature": "year_span",
+        "importance": 241.51783180236816
+      },
+      {
+        "feature": "semester_3_count",
+        "importance": 201.00650570391372
+      },
+      {
+        "feature": "score_count",
+        "importance": 178.8901693402695
+      },
+      {
+        "feature": "score_sum",
+        "importance": 160.79876319034196
+      },
+      {
+        "feature": "semester_4_count",
+        "importance": 141.78338886470738
+      },
+      {
+        "feature": "score_trend",
+        "importance": 137.32903865768006
+      },
+      {
+        "feature": "semester_2_score_mean",
+        "importance": 131.02042091127032
+      },
+      {
+        "feature": "credit_score_mean",
+        "importance": 126.4765481900749
+      },
+      {
+        "feature": "score_std",
+        "importance": 122.67862741432032
+      },
+      {
+        "feature": "exam_score_mean",
+        "importance": 108.12486321212418
+      },
+      {
+        "feature": "excellent_rate",
+        "importance": 89.53561366962595
+      },
+      {
+        "feature": "admission_year",
+        "importance": 88.10926109652792
+      },
+      {
+        "feature": "records_count",
+        "importance": 77.01921330549521
+      },
+      {
+        "feature": "year_min",
+        "importance": 68.29297857731581
+      },
+      {
+        "feature": "score_mean",
+        "importance": 67.14243574823266
+      },
+      {
+        "feature": "semester_3_score_mean",
+        "importance": 66.30138519683169
+      },
+      {
+        "feature": "faculty_encoded",
+        "importance": 62.55037021636963
+      },
+      {
+        "feature": "disciplines_count",
+        "importance": 59.954664416683954
+      },
+      {
+        "feature": "credits_count",
+        "importance": 52.216357611341664
+      },
+      {
+        "feature": "semester_score_mean",
+        "importance": 52.20759981206215
+      },
+      {
+        "feature": "semester_1_score_mean",
+        "importance": 47.78872950282744
+      },
+      {
+        "feature": "exams_count",
+        "importance": 43.30202946931109
+      },
+      {
+        "feature": "score_max",
+        "importance": 39.764221659917744
+      },
+      {
+        "feature": "score_min",
+        "importance": 39.029127191752195
+      },
+      {
+        "feature": "practices_count",
+        "importance": 35.4038617823262
+      },
+      {
+        "feature": "year_max",
+        "importance": 30.588900969034285
+      },
+      {
+        "feature": "score_median",
+        "importance": 30.36349978423641
+      },
+      {
+        "feature": "courseworks_count",
+        "importance": 28.06644034385681
+      },
+      {
+        "feature": "semester_2_count",
+        "importance": 21.16701532396155
+      },
+      {
+        "feature": "semester_count",
+        "importance": 10.512329816818237
+      },
+      {
+        "feature": "score_improvement",
+        "importance": 5.565107002854347
+      },
+      {
+        "feature": "direction_encoded",
+        "importance": 4.7631001472473145
+      },
+      {
+        "feature": "semester_max",
+        "importance": 0.006053853528200648
+      },
+      {
+        "feature": "semester_min",
+        "importance": 0.0
+      }
+    ]
+  }
+}
